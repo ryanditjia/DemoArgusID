@@ -15,6 +15,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
       - name: Unity Build
         uses: game-ci/unity-builder@v4
         env:
@@ -27,3 +35,9 @@ jobs:
       - name: Check build
         run: |
           tree build
+
+      - name: Upload Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: Build
+          path: build/WebGL
