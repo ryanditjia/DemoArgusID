@@ -8,9 +8,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: WebGL Build
+  build-and-upload:
+    name: WebGL Build and Upload to R2
     runs-on: ubuntu-latest
+    outputs:
+      object_key: ${{ steps.r2-upload.outputs.object_key }}
+      object_locations: ${{ steps.r2-upload.outputs.object_locations }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -36,8 +40,18 @@ jobs:
         run: |
           tree build
 
-      - name: Upload Build
-        uses: actions/upload-artifact@v3
+      - name: Upload to R2 - Use S3 API
+        uses: shallwefootball/upload-s3-action@v1.3.3
+        id: r2-upload
         with:
-          name: Build
-          path: build/WebGL
+          aws_key_id: ${{ secrets.R2_ACCESS_KEY }}
+          aws_secret_access_key: ${{ secrets.R2_SECRET_KEY }}
+          aws_bucket: demo-argus-web-player
+          source_dir: ./build/WebGL/WebGL/Build
+          destination_dir: ${{ github.sha }}
+          endpoint: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+
+      - name: Show Uploaded Object Locations
+        run: |
+          echo "object_key: ${{ steps.r2-upload.outputs.object_key }}"
+          echo "object_locations: ${{ steps.r2-upload.outputs.object_locations }}"
