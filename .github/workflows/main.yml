@@ -1,7 +1,9 @@
 name: Production
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -11,9 +13,6 @@ jobs:
   build-and-upload:
     name: WebGL Build and Upload to R2
     runs-on: ubuntu-latest
-    outputs:
-      object_key: ${{ steps.r2-upload.outputs.object_key }}
-      object_locations: ${{ steps.r2-upload.outputs.object_locations }}
 
     steps:
       - name: Checkout Repository
@@ -40,18 +39,15 @@ jobs:
         run: |
           tree build
 
-      - name: Upload to R2 - Use S3 API
-        uses: shallwefootball/upload-s3-action@v1.3.3
-        id: r2-upload
+      - name: Upload to R2 and update registry
+        uses: ryanditjia/demo-actions@registry
         with:
-          aws_key_id: ${{ secrets.R2_ACCESS_KEY }}
-          aws_secret_access_key: ${{ secrets.R2_SECRET_KEY }}
-          aws_bucket: demo-argus-web-player
-          source_dir: ./build/WebGL/WebGL/Build
-          destination_dir: ${{ github.sha }}
-          endpoint: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
-
-      - name: Show Uploaded Object Locations
-        run: |
-          echo "object_key: ${{ steps.r2-upload.outputs.object_key }}"
-          echo "object_locations: ${{ steps.r2-upload.outputs.object_locations }}"
+          game-name: demoargusid
+          r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+          r2-access-key: ${{ secrets.R2_ACCESS_KEY }}
+          r2-secret-key: ${{ secrets.R2_SECRET_KEY }}
+          r2-bucket: demo-argus-web-player
+          r2-destination-dir: ${{ github.sha }}
+          web-player-env: production
+          webgl-build-dir: ./build/WebGL/WebGL/Build
+          web-player-repo-pat: ${{ secrets.WEB_PLAYER_REPO_PAT }}
