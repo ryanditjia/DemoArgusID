@@ -50,6 +50,6 @@ jobs:
           r2-bucket: demo-argus-web-player
           r2-custom-domain: https://cdn.ryanditjia.com
           r2-destination-dir: ${{ github.sha }}
-          web-player-env: production
+          web-player-env: development
           webgl-build-dir: ./build/WebGL/WebGL/Build
           web-player-repo-pat: ${{ secrets.WEB_PLAYER_REPO_PAT }}
