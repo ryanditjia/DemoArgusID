@@ -1,0 +1,51 @@
+name: Production
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-upload:
+    name: WebGL Build and Upload to R2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Unity Build
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+
+      - name: Upload to R2 and update registry
+        uses: ryanditjia/demo-actions@registry
+        with:
+          game-name: demoargusid
+          web-player-env: production
+          webgl-build-dir: ./build/WebGL/WebGL/Build
+          web-player-repo-pat: ${{ secrets.WEB_PLAYER_REPO_PAT }}
+          r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+          r2-access-key: ${{ secrets.R2_ACCESS_KEY }}
+          r2-secret-key: ${{ secrets.R2_SECRET_KEY }}
+          r2-bucket: production-demo-argus-web-player
+          r2-custom-domain: https://cdn.ryanditjia.com
+          r2-destination-dir: ${{ github.sha }}
