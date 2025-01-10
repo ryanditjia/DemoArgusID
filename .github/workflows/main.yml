@@ -18,22 +18,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Cache Library
-        uses: actions/cache@v3
-        with:
-          path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-
+      # - name: Cache Library
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: Library
+      #     key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+      #     restore-keys: |
+      #       Library-
 
-      - name: Unity Build
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          targetPlatform: WebGL
+      # - name: Unity Build
+      #   uses: game-ci/unity-builder@v4
+      #   env:
+      #     UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      #     UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      #     UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      #   with:
+      #     targetPlatform: WebGL
 
       - name: Check build
         run: |
@@ -47,6 +47,7 @@ jobs:
           r2-access-key: ${{ secrets.R2_ACCESS_KEY }}
           r2-secret-key: ${{ secrets.R2_SECRET_KEY }}
           r2-bucket: demo-argus-web-player
+          r2-custom-domain: https://cdn.ryanditjia.com
           r2-destination-dir: ${{ github.sha }}
           web-player-env: production
           webgl-build-dir: ./build/WebGL/WebGL/Build
