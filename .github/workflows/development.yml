@@ -40,6 +40,7 @@ jobs:
         uses: ryanditjia/demo-actions@registry
         with:
           game-name: demoargusid
+          argus-id-unity-method-receive-jwt: MenuManager.ReceiveJWT
           web-player-env: development
           webgl-build-dir: ./build/WebGL/WebGL/Build
           web-player-repo-pat: ${{ secrets.WEB_PLAYER_REPO_PAT }}
